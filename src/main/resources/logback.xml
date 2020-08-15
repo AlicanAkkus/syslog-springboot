@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="true">
+
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="undefined"/>
+    <property name="LOG_PATTERN" value="date=%d;log-level=%p;app=${appName};thread=%t;trace=%X{traceId},%X{spanId};logger=%logger;message=%m%n%xException"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="com.zaxxer" level="WARN"/>
+    <logger name="ch.qos.logback" level="WARN"/>
+    <logger name="com.aakkus" level="DEBUG"/>
+
+    <springProfile name="ft | local">
+        <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>${LOG_PATTERN}</Pattern>
+            </layout>
+        </appender>
+
+        <root level="debug">
+            <appender-ref ref="console"/>
+        </root>
+
+    </springProfile>
+
+    <springProfile name="docker | stg | dev | prod">
+        <appender name="syslog" class="ch.qos.logback.classic.net.SyslogAppender">
+            <syslogHost>syslog</syslogHost>
+            <facility>USER</facility>
+            <port>514</port>
+            <throwableExcluded>true</throwableExcluded>
+            <suffixPattern>${LOG_PATTERN}</suffixPattern>
+        </appender>
+
+        <root level="debug">
+            <appender-ref ref="syslog"/>
+        </root>
+    </springProfile>
+
+</configuration>
